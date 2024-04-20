@@ -105,6 +105,11 @@ app.post('/signup', async (req: Request, res: Response) => {
     }
 });
 
+app.post('/create-study-list', async (req: Request, res: Response) => {
+    console.log(req.body);
+    res.send("hey!");
+});
+
 // Default route
 app.get('/', (req: Request, res: Response) => {
 
@@ -143,12 +148,17 @@ app.get('/', (req: Request, res: Response) => {
 
             <input type="submit" value="Log In">
         </form>
+
+        <h2>Create</h2>
+        <form action="/create-study-list" method="post">
+            <input type="submit" value="Create">
+        </form>
     
     </body></html>`;
     res.send(htmlContent);
 });
 
-// Start the server
+// Start the server 
 const port = 5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
