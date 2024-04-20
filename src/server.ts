@@ -22,6 +22,16 @@ app.use('/status', (req: Request, res: Response) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
+
+// Apply rate limiter to /login route
+app.use('/login', limiter);
+
+// Login route
+app.post('/login', async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    console.log(req.body);
+    res.status(200).json({ message: 'Login successful' });
+});
 // Apply rate limiter to /signup route
 app.use('/signup', limiter);
 
@@ -81,6 +91,20 @@ app.get('/', (req: Request, res: Response) => {
             <input type="password" id="password" name="password" required><br><br>
 
             <input type="submit" value="Sign Up">
+        </form>
+
+        <br>
+
+        <h2>Log In</h2>
+        <form action="/login" method="post">
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Log In">
         </form>
     
     </body></html>`;
