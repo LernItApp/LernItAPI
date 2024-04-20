@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
+const collection = require('./mongodb');
 
 const app: Application = express();
 
@@ -29,8 +30,31 @@ app.use('/login', limiter);
 // Login route
 app.post('/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    console.log(req.body);
-    res.status(200).json({ message: 'Login successful' });
+
+    // Check if required fields are provided
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        // Find user by email
+        const user = await collection.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Compare passwords
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+
+        // If everything is correct, login successful
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'An error occurred during login' });
+    }
 });
 // Apply rate limiter to /signup route
 app.use('/signup', limiter);
@@ -45,6 +69,20 @@ app.post('/signup', async (req: Request, res: Response) => {
     }
 
     try {
+        // Check if username or email already exists
+        const existingUser = await collection.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            let errorMessage = '';
+            if (existingUser.username === username) {
+                errorMessage = 'Username already exists';
+            } else if (existingUser.email === email) {
+                errorMessage = 'Email already exists';
+            } else {
+                errorMessage = 'Some other error has occurred';
+            }
+            return res.status(400).json({ error: errorMessage });
+        }
+
         // Generate password hash
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -57,8 +95,7 @@ app.post('/signup', async (req: Request, res: Response) => {
             password: hashedPassword // Save hashed password
         };
 
-        // print it out to the console
-        console.log(user);
+        await collection.insertMany(user);
 
         // Respond with success message
         res.status(200).json({ message: 'Signup successful' });

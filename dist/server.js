@@ -15,7 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const collection = require('./mongodb');
 const app = (0, express_1.default)();
+// Parse JSON bodies
+app.use(express_1.default.json());
+// Parse URL-encoded bodies
+app.use(express_1.default.urlencoded({ extended: true }));
 // Rate limiting configuration
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 60 * 1000, // 1 minute
@@ -26,6 +31,34 @@ const limiter = (0, express_rate_limit_1.default)({
 app.use('/status', (req, res) => {
     res.status(200).json({ status: 'Server is running' });
 });
+// Apply rate limiter to /login route
+app.use('/login', limiter);
+// Login route
+app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    // Check if required fields are provided
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+    try {
+        // Find user by email
+        const user = yield collection.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        // Compare passwords
+        const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+        // If everything is correct, login successful
+        res.status(200).json({ message: 'Login successful' });
+    }
+    catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'An error occurred during login' });
+    }
+}));
 // Apply rate limiter to /signup route
 app.use('/signup', limiter);
 // Signup route
@@ -36,6 +69,21 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(400).json({ error: 'Name, username, email, and password are required' });
     }
     try {
+        // Check if username or email already exists
+        const existingUser = yield collection.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
+            let errorMessage = '';
+            if (existingUser.username === username) {
+                errorMessage = 'Username already exists';
+            }
+            else if (existingUser.email === email) {
+                errorMessage = 'Email already exists';
+            }
+            else {
+                errorMessage = 'Some other error has occurred';
+            }
+            return res.status(400).json({ error: errorMessage });
+        }
         // Generate password hash
         const saltRounds = 10;
         const hashedPassword = yield bcrypt_1.default.hash(password, saltRounds);
@@ -46,6 +94,7 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             email,
             password: hashedPassword // Save hashed password
         };
+        yield collection.insertMany(user);
         // Respond with success message
         res.status(200).json({ message: 'Signup successful' });
     }
@@ -56,7 +105,44 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 }));
 // Default route
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    // for testing purposes
+    const htmlContent = `
+    <html><body>
+    
+        <h2>Sign Up</h2>
+        <form action="/signup" method="post">
+
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required><br><br>
+
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Sign Up">
+        </form>
+
+        <br>
+
+        <h2>Log In</h2>
+        <form action="/login" method="post">
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Log In">
+        </form>
+    
+    </body></html>`;
+    res.send(htmlContent);
 });
 // Start the server
 const port = 3000;
