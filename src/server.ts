@@ -4,6 +4,12 @@ import bcrypt from 'bcrypt';
 
 const app: Application = express();
 
+// Parse JSON bodies
+app.use(express.json())
+
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }))
+
 // Rate limiting configuration
 const limiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -21,11 +27,11 @@ app.use('/signup', limiter);
 
 // Signup route
 app.post('/signup', async (req: Request, res: Response) => {
-    const { name, username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     // Check if required fields are provided
-    if (!name || !username || !email || !password) {
-        return res.status(400).json({ error: 'Name, username, email, and password are required' });
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'Username, email, and password are required' });
     }
 
     try {
@@ -35,11 +41,13 @@ app.post('/signup', async (req: Request, res: Response) => {
 
         // Create new user
         const user = {
-            name,
             username,
             email,
             password: hashedPassword // Save hashed password
         };
+
+        // print it out to the console
+        console.log(user);
 
         // Respond with success message
         res.status(200).json({ message: 'Signup successful' });
@@ -51,7 +59,26 @@ app.post('/signup', async (req: Request, res: Response) => {
 
 // Default route
 app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!');
+    const htmlContent = `
+    <html><body>
+    
+        <h2>Sign Up</h2>
+        <form action="/signup" method="post">
+
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Sign Up">
+        </form>
+    
+    </body></html>`;
+    res.send(htmlContent);
 });
 
 // Start the server
