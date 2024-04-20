@@ -27,11 +27,11 @@ app.use('/signup', limiter);
 
 // Signup route
 app.post('/signup', async (req: Request, res: Response) => {
-    const { username, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
     // Check if required fields are provided
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: 'Username, email, and password are required' });
+    if (!name || !username || !email || !password) {
+        return res.status(400).json({ error: 'Name, username, email, and password are required' });
     }
 
     try {
@@ -41,6 +41,7 @@ app.post('/signup', async (req: Request, res: Response) => {
 
         // Create new user
         const user = {
+            name,
             username,
             email,
             password: hashedPassword // Save hashed password
@@ -59,11 +60,16 @@ app.post('/signup', async (req: Request, res: Response) => {
 
 // Default route
 app.get('/', (req: Request, res: Response) => {
+
+    // for testing purposes
     const htmlContent = `
     <html><body>
     
         <h2>Sign Up</h2>
         <form action="/signup" method="post">
+
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required><br><br>
 
             <label for="username">Username:</label><br>
             <input type="text" id="username" name="username" required><br><br>
