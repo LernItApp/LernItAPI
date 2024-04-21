@@ -8,6 +8,8 @@ const app: Application = express();
 // Parse JSON bodies
 app.use(express.json())
 
+app.use(express.static('build'));
+
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }))
 
@@ -110,53 +112,53 @@ app.post('/create-study-list', async (req: Request, res: Response) => {
     res.send("hey!");
 });
 
-// Default route
-app.get('/', (req: Request, res: Response) => {
+// // Default route
+// app.get('/', (req: Request, res: Response) => {
 
-    // for testing purposes
-    const htmlContent = `
-    <html><body>
+//     // for testing purposes
+//     const htmlContent = `
+//     <html><body>
     
-        <h2>Sign Up</h2>
-        <form action="/signup" method="post">
+//         <h2>Sign Up</h2>
+//         <form action="/signup" method="post">
 
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" required><br><br>
+//             <label for="name">Name:</label><br>
+//             <input type="text" id="name" name="name" required><br><br>
 
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username" required><br><br>
+//             <label for="username">Username:</label><br>
+//             <input type="text" id="username" name="username" required><br><br>
 
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br><br>
+//             <label for="email">Email:</label><br>
+//             <input type="email" id="email" name="email" required><br><br>
 
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
+//             <label for="password">Password:</label><br>
+//             <input type="password" id="password" name="password" required><br><br>
 
-            <input type="submit" value="Sign Up">
-        </form>
+//             <input type="submit" value="Sign Up">
+//         </form>
 
-        <br>
+//         <br>
 
-        <h2>Log In</h2>
-        <form action="/login" method="post">
+//         <h2>Log In</h2>
+//         <form action="/login" method="post">
 
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br><br>
+//             <label for="email">Email:</label><br>
+//             <input type="email" id="email" name="email" required><br><br>
 
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
+//             <label for="password">Password:</label><br>
+//             <input type="password" id="password" name="password" required><br><br>
 
-            <input type="submit" value="Log In">
-        </form>
+//             <input type="submit" value="Log In">
+//         </form>
 
-        <h2>Create</h2>
-        <form action="/create-study-list" method="post">
-            <input type="submit" value="Create">
-        </form>
+//         <h2>Create</h2>
+//         <form action="/create-study-list" method="post">
+//             <input type="submit" value="Create">
+//         </form>
     
-    </body></html>`;
-    res.send(htmlContent);
-});
+//     </body></html>`;
+//     res.send(htmlContent);
+// });
 
 // Start the server 
 const port = 5000;
