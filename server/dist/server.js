@@ -103,6 +103,10 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(500).json({ error: 'An error occurred during signup' });
     }
 }));
+app.post('/create-study-list', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
+    res.send("hey!");
+}));
 // Default route
 app.get('/', (req, res) => {
     // for testing purposes
@@ -140,11 +144,16 @@ app.get('/', (req, res) => {
 
             <input type="submit" value="Log In">
         </form>
+
+        <h2>Create</h2>
+        <form action="/create-study-list" method="post">
+            <input type="submit" value="Create">
+        </form>
     
     </body></html>`;
     res.send(htmlContent);
 });
-// Start the server
+// Start the server 
 const port = 5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
