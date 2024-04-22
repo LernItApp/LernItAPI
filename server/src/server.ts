@@ -25,6 +25,10 @@ app.use('/status', (req: Request, res: Response) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
+app.get('/login', limiter, (req: Request, res: Response) => {
+    res.send('heu');
+});
+
 
 // Apply rate limiter to /login route
 app.use('/login', limiter);

@@ -19,6 +19,7 @@ const collection = require('./mongodb');
 const app = (0, express_1.default)();
 // Parse JSON bodies
 app.use(express_1.default.json());
+app.use(express_1.default.static('build'));
 // Parse URL-encoded bodies
 app.use(express_1.default.urlencoded({ extended: true }));
 // Rate limiting configuration
@@ -30,6 +31,9 @@ const limiter = (0, express_rate_limit_1.default)({
 // Middleware to check server status
 app.use('/status', (req, res) => {
     res.status(200).json({ status: 'Server is running' });
+});
+app.get('/login', limiter, (req, res) => {
+    res.send('heu');
 });
 // Apply rate limiter to /login route
 app.use('/login', limiter);
@@ -107,52 +111,39 @@ app.post('/create-study-list', (req, res) => __awaiter(void 0, void 0, void 0, f
     console.log(req.body);
     res.send("hey!");
 }));
-// Default route
-app.get('/', (req, res) => {
-    // for testing purposes
-    const htmlContent = `
-    <html><body>
-    
-        <h2>Sign Up</h2>
-        <form action="/signup" method="post">
-
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" required><br><br>
-
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username" required><br><br>
-
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br><br>
-
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
-
-            <input type="submit" value="Sign Up">
-        </form>
-
-        <br>
-
-        <h2>Log In</h2>
-        <form action="/login" method="post">
-
-            <label for="email">Email:</label><br>
-            <input type="email" id="email" name="email" required><br><br>
-
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password" required><br><br>
-
-            <input type="submit" value="Log In">
-        </form>
-
-        <h2>Create</h2>
-        <form action="/create-study-list" method="post">
-            <input type="submit" value="Create">
-        </form>
-    
-    </body></html>`;
-    res.send(htmlContent);
-});
+// // Default route
+// app.get('/', (req: Request, res: Response) => {
+//     // for testing purposes
+//     const htmlContent = `
+//     <html><body>
+//         <h2>Sign Up</h2>
+//         <form action="/signup" method="post">
+//             <label for="name">Name:</label><br>
+//             <input type="text" id="name" name="name" required><br><br>
+//             <label for="username">Username:</label><br>
+//             <input type="text" id="username" name="username" required><br><br>
+//             <label for="email">Email:</label><br>
+//             <input type="email" id="email" name="email" required><br><br>
+//             <label for="password">Password:</label><br>
+//             <input type="password" id="password" name="password" required><br><br>
+//             <input type="submit" value="Sign Up">
+//         </form>
+//         <br>
+//         <h2>Log In</h2>
+//         <form action="/login" method="post">
+//             <label for="email">Email:</label><br>
+//             <input type="email" id="email" name="email" required><br><br>
+//             <label for="password">Password:</label><br>
+//             <input type="password" id="password" name="password" required><br><br>
+//             <input type="submit" value="Log In">
+//         </form>
+//         <h2>Create</h2>
+//         <form action="/create-study-list" method="post">
+//             <input type="submit" value="Create">
+//         </form>
+//     </body></html>`;
+//     res.send(htmlContent);
+// });
 // Start the server 
 const port = 5000;
 app.listen(port, () => {
