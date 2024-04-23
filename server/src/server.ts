@@ -2,13 +2,15 @@ import express, { Application, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
 const collection = require('./mongodb');
+const path = require('path');
 
 const app: Application = express();
 
 // Parse JSON bodies
 app.use(express.json())
 
-app.use(express.static('build'));
+// Serve the static files from the React app
+app.use(express.static(path.join(__dirname, '../build')));
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }))
@@ -25,10 +27,10 @@ app.use('/status', (req: Request, res: Response) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
-app.get('/login', limiter, (req: Request, res: Response) => {
-    res.send('heu');
-});
-
+app.get('/login', (req: Request, res: Response) => {
+    res.sendFile(path.join('../build/index.html'));
+  });
+  
 
 // Apply rate limiter to /login route
 app.use('/login', limiter);
@@ -62,6 +64,7 @@ app.post('/login', async (req: Request, res: Response) => {
         res.status(500).json({ error: 'An error occurred during login' });
     }
 });
+
 // Apply rate limiter to /signup route
 app.use('/signup', limiter);
 
@@ -111,61 +114,19 @@ app.post('/signup', async (req: Request, res: Response) => {
     }
 });
 
+// Api route to create a study list
 app.post('/create-study-list', async (req: Request, res: Response) => {
     console.log(req.body);
     res.send("hey!");
 });
 
-// // Default route
-// app.get('/', (req: Request, res: Response) => {
-
-//     // for testing purposes
-//     const htmlContent = `
-//     <html><body>
-    
-//         <h2>Sign Up</h2>
-//         <form action="/signup" method="post">
-
-//             <label for="name">Name:</label><br>
-//             <input type="text" id="name" name="name" required><br><br>
-
-//             <label for="username">Username:</label><br>
-//             <input type="text" id="username" name="username" required><br><br>
-
-//             <label for="email">Email:</label><br>
-//             <input type="email" id="email" name="email" required><br><br>
-
-//             <label for="password">Password:</label><br>
-//             <input type="password" id="password" name="password" required><br><br>
-
-//             <input type="submit" value="Sign Up">
-//         </form>
-
-//         <br>
-
-//         <h2>Log In</h2>
-//         <form action="/login" method="post">
-
-//             <label for="email">Email:</label><br>
-//             <input type="email" id="email" name="email" required><br><br>
-
-//             <label for="password">Password:</label><br>
-//             <input type="password" id="password" name="password" required><br><br>
-
-//             <input type="submit" value="Log In">
-//         </form>
-
-//         <h2>Create</h2>
-//         <form action="/create-study-list" method="post">
-//             <input type="submit" value="Create">
-//         </form>
-    
-//     </body></html>`;
-//     res.send(htmlContent);
-// });
+// Handles any requests that don't match the ones above
+app.get('*', (req,res) =>{
+    res.sendFile(path.join(__dirname+'../build/index.html'));
+});
 
 // Start the server 
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
