@@ -23,6 +23,39 @@ const LoginSchema = new mongoose.Schema({
     }
 });
 
-const collection = mongoose.model('UserBase', LoginSchema);
+const StudyListSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    list: [{
+        term: {
+            type: String,
+            required: true
+        },
+        definition: {
+            type: String,
+            required: true
+        }
+    }]
+});
 
-module.exports = collection;
+const LoginModel = mongoose.model('UserBase', LoginSchema);
+const StudyListModel = mongoose.model('StudyList', StudyListSchema);
+
+module.exports = {
+    LoginModel,
+    StudyListModel
+};

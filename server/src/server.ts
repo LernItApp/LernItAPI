@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
-const collection = require('./mongodb');
+const {LoginModel, StudyListModel} = require('./mongodb');
 const path = require('path');
 
 const app: Application = express();
@@ -46,7 +46,7 @@ app.post('/login', async (req: Request, res: Response) => {
 
     try {
         // Find user by email
-        const user = await collection.findOne({ email });
+        const user = await LoginModel.findOne({ email });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -79,7 +79,7 @@ app.post('/signup', async (req: Request, res: Response) => {
 
     try {
         // Check if username or email already exists
-        const existingUser = await collection.findOne({ $or: [{ username }, { email }] });
+        const existingUser = await LoginModel.findOne({ $or: [{ username }, { email }] });
         if (existingUser) {
             let errorMessage = '';
             if (existingUser.username === username) {
@@ -104,7 +104,7 @@ app.post('/signup', async (req: Request, res: Response) => {
             password: hashedPassword // Save hashed password
         };
 
-        await collection.insertMany(user);
+        await LoginModel.insertMany(user);
 
         // Respond with success message
         res.status(200).json({ message: 'Signup successful' });
@@ -116,8 +116,27 @@ app.post('/signup', async (req: Request, res: Response) => {
 
 // Api route to create a study list
 app.post('/create-study-list', async (req: Request, res: Response) => {
+    const { name, username, email, description, list } = req.body;
     console.log(req.body);
-    res.send("hey!");
+
+    try {
+        // Create a new StudyList document
+        const newStudyList = new StudyListModel({
+            name,
+            username,
+            email,
+            description,
+            list
+        });
+
+        // Save the StudyList document to the database
+        await StudyListModel.insertMany(newStudyList);
+
+        res.status(201).json({ message: 'Study list creation successful' });
+    } catch (error) {
+        console.error("Error saving Study List:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 // Handles any requests that don't match the ones above
