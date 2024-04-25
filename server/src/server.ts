@@ -139,6 +139,21 @@ app.post('/create-study-list', async (req: Request, res: Response) => {
     }
 });
 
+app.get('/api/get-study-list/:id', async (req: Request, res: Response) => {
+    const listId = req.params.id;
+
+    // Get the list from the database
+    const studyList = await StudyListModel.findOne({ _id: listId });
+    /*
+        TODO: Add the code here for this.
+        1. Check if the list exists
+        2. also addd the id to the list schema
+        3. add error handling for not found
+    */
+
+    res.send(studyList);
+});
+
 // Handles any requests that don't match the ones above
 app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname + '/../build/index.html'));
