@@ -27,9 +27,9 @@ app.use('/status', (req: Request, res: Response) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
-app.get('/login', (req: Request, res: Response) => {
-    res.sendFile(path.join('../build/index.html'));
-  });
+// app.get('/login', (req: Request, res: Response) => {
+//     res.sendFile(path.join(__dirname + '.../build/index.html'));
+//   });
   
 
 // Apply rate limiter to /login route
@@ -141,7 +141,7 @@ app.post('/create-study-list', async (req: Request, res: Response) => {
 
 // Handles any requests that don't match the ones above
 app.get('*', (req,res) =>{
-    res.sendFile(path.join(__dirname+'../build/index.html'));
+    res.sendFile(path.join(__dirname + '/../build/index.html'));
 });
 
 // Start the server 
