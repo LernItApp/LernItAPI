@@ -21,7 +21,7 @@ function App() {
           <Route exact path="/create-study-list" element={<CreateStudyList />} />
           <Route exact path="/privacy" element={<Privacy />} />
           <Route exact path="/contact" element={<Contact />} />
-          <Route exact path="/termsofservice" element={<TermsOfService />} />
+          <Route exact path="/terms" element={<TermsOfService />} />
         </Routes>
       </Router>
     </AppWrapper>
