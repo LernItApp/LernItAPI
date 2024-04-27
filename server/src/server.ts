@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcrypt';
 const {LoginModel, StudyListModel} = require('./mongodb');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const app: Application = express();
 
@@ -120,8 +121,12 @@ app.post('/create-study-list', async (req: Request, res: Response) => {
     console.log(req.body);
 
     try {
+        // Generate a random ID for the new study list
+        const id = uuidv4();
+
         // Create a new StudyList document
         const newStudyList = new StudyListModel({
+            id,
             name,
             username,
             email,
