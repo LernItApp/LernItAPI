@@ -28,11 +28,6 @@ app.use('/status', (req: Request, res: Response) => {
     res.status(200).json({ status: 'Server is running' });
 });
 
-// app.get('/login', (req: Request, res: Response) => {
-//     res.sendFile(path.join(__dirname + '.../build/index.html'));
-//   });
-  
-
 // Apply rate limiter to /login route
 app.use('/login', limiter);
 
